@@ -1,0 +1,18 @@
+{
+    "name": "david/htdocs",
+    "description": "Punto de venta",
+    "authors": [
+        {
+            "name": "David Grilo",
+            "email": "davidmostachoweb@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "App\\" : "./clases"
+        }
+    },
+    "require": {
+        "mike42/escpos-php": "^2.2"
+    }
+}
