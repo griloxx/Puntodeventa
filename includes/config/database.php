@@ -1,7 +1,7 @@
 <?php
 
 function conectarDB() : mysqli {
-    $db = new mysqli('localhost', 'root', 'Gridur.91', 'puntoventa');
+    $db = new mysqli('', '', '', '');
 
     if (!$db) {
         echo 'Error en la conexion';
