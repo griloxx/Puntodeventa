@@ -13,6 +13,7 @@
         }
     },
     "require": {
-        "mike42/escpos-php": "^2.2"
+        "mike42/escpos-php": "^2.2",
+        "vlucas/phpdotenv": "^5.5"
     }
 }

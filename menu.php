@@ -110,7 +110,7 @@ if(isset($_POST['apertura'])) {
                 <section class="menu-principal">
                     <button id="btnNewCat" class="iconos-principal"><img src="/build/img/iconos/llave.png" alt="Icono Home">Apertura de caja</button>
                     <form method="POST">
-                    <button class="iconos-principal-venta" name="venta" value="venta" ><img src="/build/img/iconos/cajaregristro.png" alt="Icono Home">Iniciar venta</button>
+                    <button class="iconos-principal-venta" name="venta" value="<?php echo s('venta') ?>" ><img src="/build/img/iconos/cajaregristro.png" alt="Icono Home">Iniciar venta</button>
                     </form>
                     <button id="btnNewArt" class="iconos-principal"><img src="/build/img/iconos/candado.png" alt="Icono Home">Cierre de caja</button>
                     <a href="/cerrar-sesion.php" class="iconos-principal"><img src="/build/img/iconos/salir.png" alt="Icono Home">Salir</a>
@@ -126,7 +126,7 @@ if(isset($_POST['apertura'])) {
                         <form method="POST">
                             <div class="formulario-totales" >
                                 <label>Importe Apertura:</label>
-                                <input class="totales" name="apertura" type="number" step="0.01" min="0" value="<?php echo number_format(0, 2) ?>">
+                                <input class="totales" name="apertura" type="number" step="0.01" min="0" value="<?php echo s(number_format(0, 2)) ?>">
                             </div>
                                 <div class="">
                                     <button class="abrir-caja" type="submit">Abrir Caja</button>
@@ -145,13 +145,13 @@ if(isset($_POST['apertura'])) {
                         <form method="POST">
                             <div class="formulario-totales" >
                                 <label>Importe Apertura:</label>
-                                <input class="totales" type="text" name="cierre[apertura]"  value="<?php echo number_format($cierreCaja->apertura, 2) ?>" readonly>
+                                <input class="totales" type="text" name="cierre[apertura]"  value="<?php echo s(number_format($cierreCaja->apertura, 2)) ?>" readonly>
 
                                 <label>Total Entradas:</label>
-                                <input class="totales"  type="text" name="cierre[entradas]"  value="<?php echo number_format($importeTotal, 2) ?>" readonly>
+                                <input class="totales"  type="text" name="cierre[entradas]"  value="<?php echo s(number_format($importeTotal, 2)) ?>" readonly>
 
                                 <label>Total Caja:</label>
-                                <input class="totales"  type="text" name="cierre[total]"  value="<?php echo number_format($importeTotal + $cierreCaja->apertura, 2) ?>" readonly>
+                                <input class="totales"  type="text" name="cierre[total]"  value="<?php echo s(number_format($importeTotal + $cierreCaja->apertura, 2)) ?>" readonly>
                             </div>
                                 <div class="">
                                     <button class="abrir-caja" type="submit">Cerrar Caja</button>

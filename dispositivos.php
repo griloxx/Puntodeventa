@@ -7,8 +7,13 @@ use Mike42\Escpos\Printer;
 
 $empresa = new Empresa;
 // obtener impresoras en windows
-$output = shell_exec('wmic printer get sharename');
-$impresoras = explode("\n", $output);
+
+$output = shell_exec('wmic printer get sharename') ?? null;
+if($output !== null) {
+    $impresoras = explode("\n", $output);
+} else {
+    $impresoras = null;
+}
 
 
 //validar por url que sea un id valido
@@ -83,7 +88,7 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <?php foreach ($impresoras as $impresora) { 
                                 $impresora = trim($impresora);
                                 if ($impresora != '' && $impresora != 'Name') { ?>
-                                    <option value="<?php echo $impresora; ?>"><?php echo $impresora; ?></option>
+                                    <option value="<?php echo s($impresora); ?>"><?php echo $impresora; ?></option>
                                 <?php } ?>
                             <?php } ?>
                         </select>

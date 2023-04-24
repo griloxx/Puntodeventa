@@ -52,14 +52,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <tbody>
             <?php foreach($usuarios as $usuario) { ?>
             <tr>
-                <td class="td-imagen"><img class="imagen-tabla" src="/imagenes/<?php echo $usuario->imagen?>" alt="Imagen Perfil"></td>
+                <td class="td-imagen"><img class="imagen-tabla" src="/imagenes/<?php echo s($usuario->imagen)?>" alt="Imagen Perfil"></td>
                 <td><?php echo $usuario->usuario?></td>
                 <td><?php echo $usuario->nombre?></td>
                 <td><?php echo $usuario->apellidos?></td>
                 <td><?php echo $usuario->email?></td>
                 <td class="opciones">
                     <form method="POST" id="<?php echo "form" . $usuario->id?>">
-                        <input type="hidden" name="id" value="<?php echo $usuario->id ?>" class="boton-rojo guardar">
+                        <input type="hidden" name="id" value="<?php echo s($usuario->id) ?>" class="boton-rojo guardar">
                         <input type="submit" value="Eliminar" class="boton-rojo guardar">
                     </form>
                     <a href="usuarios/actualizar.php?id=<?php echo $usuario->id ?>" class="boton-verde guardar">Actualizar</a>

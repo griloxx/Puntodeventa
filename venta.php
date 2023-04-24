@@ -5,15 +5,15 @@ incluirTemplates('headerventa');
 use App\Categorias;
 use App\Articulos;
 use App\Ticket;
-use App\totales;
+use App\Totales;
 use App\Tregalo;
-use App\clientes;
+use App\Clientes;
 
 $categorias = new Categorias;
 $articulos = new Articulos;
 $ticket = new Ticket;
-$clientes = new clientes;
-$totalCliente = new totales;
+$clientes = new Clientes;
+$totalCliente = new Totales;
 
 $totalCliente = $totalCliente->comprobar();
 $categorias = Categorias::all();
@@ -46,7 +46,7 @@ if(isset($_GET['cat'])){
 
 if(isset($_POST['cliente'])) {
     $args = $_POST['cliente'];
-    $guardar = new clientes;
+    $guardar = new Clientes;
     $guardar->sincronizar($args);
     $dir = "/venta.php";
     $guardar->guardar($dir);
@@ -54,7 +54,7 @@ if(isset($_POST['cliente'])) {
 
 if(isset($_POST['clientes']['seleccionar'])) {
     $id = $_POST['clientes']['seleccionar'];
-    $selec = new totales;
+    $selec = new Totales;
     $selec = $selec->comprobar();
     $selec->cliente = $id;
     $selec = $selec->actualizar7();
@@ -272,7 +272,7 @@ if(isset($_POST['eliminar']['id'])) {
                             <td><?php echo $mostrar->cantidad ?></td>
                             <td><?php echo $mostrar->total ?></td>
                             <form method="POST">
-                            <td><button type="submit" name="eliminar[id]" value="<?php echo $mostrar->id ?>" class="boton-rojo"><img class="icono" src="/build/img/iconos/icons8-papelera-llena-100.png" alt="Icono papelera"></button><input type="hidden" name="eliminar[cantidad]" value="<?php echo $mostrar->cantidad ?>"><input type="hidden" name="eliminar[nombre]" value="<?php echo $mostrar->nombre ?>"></td>
+                            <td><button type="submit" name="eliminar[id]" value="<?php echo s($mostrar->id) ?>" class="boton-rojo"><img class="icono" src="/build/img/iconos/icons8-papelera-llena-100.png" alt="Icono papelera"></button><input type="hidden" name="eliminar[cantidad]" value="<?php echo $mostrar->cantidad ?>"><input type="hidden" name="eliminar[nombre]" value="<?php echo $mostrar->nombre ?>"></td>
                             </form>
                         </tr>
                          <!-- ventana modal -->
@@ -284,9 +284,9 @@ if(isset($_POST['eliminar']['id'])) {
                                         <div class="separador">
                                             <div class="contenedor-azul">
                                                 <label for="precio">Precio:</label>
-                                                <input type="number" step="0.01" name="newPrecio[precio]" id="precio" value="<?php echo $mostrar->precio ?>" >
+                                                <input type="number" step="0.01" name="newPrecio[precio]" id="precio" value="<?php echo s($mostrar->precio) ?>" >
                                             </div>
-                                            <input type="hidden" name="newPrecio[id]" value="<?php echo $mostrar->id ?>">
+                                            <input type="hidden" name="newPrecio[id]" value="<?php echo s($mostrar->id) ?>">
                                             <input type="submit" class="boton-volver" value="Guardar">
                                         </div>
                                     </form>
@@ -301,14 +301,14 @@ if(isset($_POST['eliminar']['id'])) {
                 <form method="POST"">
                     <div class="form-totales" >
                         <label>Sub:</label>
-                        <input class="totales" name="cobrar[sub]" type="text" value="<?php echo number_format($subtotal, 2) ?>" readonly>
+                        <input class="totales" name="cobrar[sub]" type="text" value="<?php echo s(number_format($subtotal, 2)) ?>" readonly>
 
                         <label>Total:</label>
-                        <input class="totales" name="cobrar[total]" type="text" value="<?php echo number_format($total, 2) ?>" readonly>
+                        <input class="totales" name="cobrar[total]" type="text" value="<?php echo s(number_format($total, 2)) ?>" readonly>
 
                         <?php if($totalCliente->cliente !== '1') { ?>
                         <label>Cliente:</label>
-                        <input class="totales" type="text" value="<?php echo $totalCliente->cliente ?>" readonly>
+                        <input class="totales" type="text" value="<?php echo s($totalCliente->cliente) ?>" readonly>
                         <?php } ?>
                     </div>
                 </form>
@@ -323,28 +323,28 @@ if(isset($_POST['eliminar']['id'])) {
                             <form method="POST" id="mi-formulario">
                                 <div class="formulario-totales" >
                                     <label>Sub:</label>
-                                    <input class="totales" name="cobrar[sub]" type="text" value="<?php echo number_format($subtotal, 2) ?>" readonly>
+                                    <input class="totales" name="cobrar[sub]" type="text" value="<?php echo s(number_format($subtotal, 2)) ?>" readonly>
 
                                     <label>Tarjeta Regalo Nº</label>
-                                    <input type="text" id="busquedaTarjetas" class="totales"  name="cobrar[tRegalo]" list="regalos" placeholder="Código Tarjeta" autocomplete="off">
+                                    <input type="text" id="busquedaTarjetas" class="totales"  name="cobrar[tRegalo]" list="regalos" placeholder="Código Tarjeta" value="<?php echo s($_POST['cobrar']['tRegalo'] ?? ''); ?>" autocomplete="off">
 
                                     <label>Importe Tarjeta Regalo:</label>
-                                    <input class="totales tarjeta" id="importeTarjeta" name="cobrar[tRegaloImporte]" type="text" value="" oninput="calcularDescuento()" readonly>
+                                    <input class="totales tarjeta" id="importeTarjeta" name="cobrar[tRegaloImporte]" type="text" value="<?php echo s($_POST['cobrar']['tRegaloImporte'] ?? ''); ?>" oninput="calcularDescuento()" readonly>
                                     
                                     <label>Total:</label>
-                                    <input class="totales tottal" id="precioTotal" name="cobrar[total]" type="text" value="<?php echo number_format($total, 2) ?>" readonly>
+                                    <input class="totales tottal" id="precioTotal" name="cobrar[total]" type="text" value="<?php echo s(number_format($total, 2)) ?>" readonly>
                                     
                                     <label>Entregado:</label>
-                                    <input class="totales" id="entregado" name="cobrar[entregado]" type="text" value="" oninput="calcularDevolver()">
+                                    <input class="totales" id="entregado" name="cobrar[entregado]" type="text" value="<?php echo s($_POST['cobrar']['entregado'] ?? ''); ?>" oninput="calcularDevolver()">
 
                                     <label>Devolver:</label>
-                                    <input class="totales" id="devolver" name="cobrar[devolver]" type="text" value="" readonly>
+                                    <input class="totales" id="devolver" name="cobrar[devolver]" type="text" value="<?php echo s($_POST['cobrar']['devolver'] ?? ''); ?>" readonly>
 
                                 </div>
                                     <div class="ventana-menu-2">
-                                        <button class="menu-cobrar pagar"   value="tarjeta" type="submit"  >Tarjeta</button>
-                                        <button class="menu-cobrar pagar"   value="efectivo" type="submit"  >Efectivo</button>
-                                        <input type="hidden" id="boton-pulsado" name="cobrar[metodo]" value="">
+                                        <button class="menu-cobrar pagar"   value="<?php echo s('tarjeta') ?>" type="submit"  >Tarjeta</button>
+                                        <button class="menu-cobrar pagar"   value="<?php echo s('efectivo') ?>" type="submit"  >Efectivo</button>
+                                        <input type="hidden" id="boton-pulsado" name="cobrar[metodo]" value="<?php echo s($_POST['cobrar']['metodo'] ?? ''); ?>">
                                     </div>
                             </form>
                         </div>
@@ -370,31 +370,31 @@ if(isset($_POST['eliminar']['id'])) {
                             <fieldset class="int-formulario2">
                                 <div class="datos">
                                     <label for="nif">NIF/CIF:</label>
-                                    <input type="text" name="cliente[nif]" placeholder="Introduce un NIF/CIF" id="nif" maxlength="20" value="" required>
+                                    <input type="text" name="cliente[nif]" placeholder="Introduce un NIF/CIF" id="nif" maxlength="20" value="<?php echo s($_POST['cliente']['nif'] ?? ''); ?>" required>
 
                                     <label for="nombreEmpresa">Nombre Empresa:</label>
-                                    <input type="text" name="cliente[nombreEmpresa]" placeholder="Nombre Empresa" id="nombreEmpresa" maxlength="50" value="">
+                                    <input type="text" name="cliente[nombreEmpresa]" placeholder="Nombre Empresa" id="nombreEmpresa" maxlength="50" value="<?php echo s($_POST['cliente']['nombreEmpresa'] ?? ''); ?>">
 
                                     <label for="nombre">Nombre:</label>
-                                    <input type="text" name="cliente[nombre]" placeholder="Nombre" id="nombre" maxlength="20" value="" required>
+                                    <input type="text" name="cliente[nombre]" placeholder="Nombre" id="nombre" maxlength="20" value="<?php echo s($_POST['cliente']['nombre'] ?? ''); ?>" required>
 
                                     <label for="apellidos">Apellidos:</label>
-                                    <input type="text" name="cliente[apellidos]" placeholder="Apellidos" id="apellidos" maxlength="50" value="">
+                                    <input type="text" name="cliente[apellidos]" placeholder="Apellidos" id="apellidos" maxlength="50" value="<?php echo s($_POST['cliente']['apellidos'] ?? ''); ?>">
 
                                     <label for="direccion">Dirección:</label>
-                                    <input type="text" name="cliente[direccion]" placeholder="Dirección" id="direccion" maxlength="100" value="">
+                                    <input type="text" name="cliente[direccion]" placeholder="Dirección" id="direccion" maxlength="100" value="<?php echo s($_POST['cliente']['direccion'] ?? ''); ?>">
 
                                     <label for="poblacion">Poblacion, Provincia:</label>
-                                    <input type="text" name="cliente[poblacionProvincia]" placeholder="Poblacion y Provincia" id="poblacion" maxlength="70" value="">
+                                    <input type="text" name="cliente[poblacionProvincia]" placeholder="Poblacion y Provincia" id="poblacion" maxlength="70" value="<?php echo s($_POST['cliente']['poblacionProvincia'] ?? ''); ?>">
 
                                     <label for="cp">Cp:</label>
-                                    <input type="text" name="cliente[cp]" placeholder="Codigo Postal" id="cp" maxlength="10" value="">
+                                    <input type="text" name="cliente[cp]" placeholder="Codigo Postal" id="cp" maxlength="10" value="<?php echo s($_POST['cliente']['cp'] ?? ''); ?>">
 
                                     <label for="email">Email:</label>
-                                    <input type="email" name="cliente[email]" placeholder="Email" id="email" maxlength="70" value="" >
+                                    <input type="email" name="cliente[email]" placeholder="Email" id="email" maxlength="70" value="<?php echo s($_POST['cliente']['email'] ?? ''); ?>" >
                                     
                                     <label for="telefono">Telefono:</label>
-                                    <input type="number" name="cliente[telefono]" placeholder="Telefono" id="telefono" value="" >
+                                    <input type="number" name="cliente[telefono]" placeholder="Telefono" id="telefono" value="<?php echo s($_POST['cliente']['telefono'] ?? ''); ?>" >
                                 </div>
                             </fieldset>
                             <div class="boton-derecha">
@@ -434,8 +434,8 @@ if(isset($_POST['eliminar']['id'])) {
                                     <td><?php echo $cliente->nombreEmpresa?></td>
                                     <td class="ultimo">
                                         <form method="POST" >
-                                            <button  name="clientes[seleccionar]" value="1" class="boton-rojo clientes">Cancelar</button>
-                                            <button  name="clientes[seleccionar]" value="<?php echo $cliente->id?>" class="boton-verde clientes">Selec.</button>
+                                            <button  name="clientes[seleccionar]" value="<?php echo s(1)?>" class="boton-rojo clientes">Cancelar</button>
+                                            <button  name="clientes[seleccionar]" value="<?php echo s($cliente->id)?>" class="boton-verde clientes">Selec.</button>
                                         </form>
                                     </td>
                                 </tr>
@@ -450,13 +450,13 @@ if(isset($_POST['eliminar']['id'])) {
             <div class="teclado">
                 <form method="POST" class="buscador-form">
                     <div class="buscador">
-                        <input type="text" id="busqueda" name="buscar" list="resultados" placeholder="Código o Nombre" autocomplete="off">
+                        <input type="text" id="busqueda" name="buscar" list="resultados" placeholder="Código o Nombre" value="<?php echo s($_POST['buscar'] ?? '') ?>" autocomplete="off">
                             <datalist id="resultados">
                             <option value="">
                         </datalist>
                     </div>
                     <form method="POST" >
-                        <input type="text" name="cantidad" autocomplete="off">
+                        <input type="text" name="cantidad" value="<?php echo s($_POST['cantidad'] ?? ''); ?>" autocomplete="off">
                             <div class="teclas">
                             <button class="numerico">1</button>
                             <button class="numerico">2</button>
@@ -469,7 +469,7 @@ if(isset($_POST['eliminar']['id'])) {
                             <button class="numerico">9</button>
                             <button class="numerico-borrar">ce</button>
                             <button class="numerico">0</button>
-                            <button class="numerico">,</button>
+                            <button class="numerico">.</button>
                             <button class="numerico">-</button>
                             <button class="numerico-intro">intro</button>
                         </div>
@@ -495,7 +495,7 @@ if(isset($_POST['eliminar']['id'])) {
                     <form class="mostrarCategorias" method="GET"">
                 <?php if(isset($categorias)) {
                     foreach($categorias as $categoria) {?>                  
-                    <input type="hidden" class="cat" value="<?php echo $categoria->id ?>">
+                    <input type="hidden" class="cat" value="<?php echo s($categoria->id) ?>">
                     <button type="submit" class="boton-seleccion" onclick="addParamCat(event)"><?php echo $categoria->nombre ?></button>
                 <?php } }?>
                     </form>
@@ -505,11 +505,11 @@ if(isset($_POST['eliminar']['id'])) {
                     <?php if(isset($articulosCat)) {
                         foreach($articulosCat as $articulo) {?>
                     <form method="POST" >
-                        <input type="hidden" class="art" name="precio" value="<?php echo $articulo->pvp ?>">
-                        <input type="hidden" class="art" name="base" value="<?php echo $articulo->base ?>">
-                        <input type="hidden" class="art" name="codigo" value="<?php echo $articulo->codigo ?>">
-                        <input type="hidden" class="art" name="nombre" value="<?php echo $articulo->nombre ?>">
-                        <input type="hidden" class="art" name="art" value="<?php echo $articulo->id ?>">
+                        <input type="hidden" class="art" name="precio" value="<?php echo s($articulo->pvp) ?>">
+                        <input type="hidden" class="art" name="base" value="<?php echo s($articulo->base) ?>">
+                        <input type="hidden" class="art" name="codigo" value="<?php echo s($articulo->codigo) ?>">
+                        <input type="hidden" class="art" name="nombre" value="<?php echo s($articulo->nombre) ?>">
+                        <input type="hidden" class="art" name="art" value="<?php echo s($articulo->id) ?>">
                         <button type="submit" class="boton-seleccion" onclick="addParamArt(event)"><?php echo $articulo->nombre ?></button>
                     </form>
                 <?php } }?>

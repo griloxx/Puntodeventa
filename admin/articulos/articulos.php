@@ -125,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="editor-categorias formulario">
                         <form method="POST" class="int-formulario">
                             <label for="nombre">Nombre Categoria:</label>
-                            <input type="text" name="categorias[nombre]" placeholder="Introduce un nombre" id="nombre" value="" required>
+                            <input type="text" name="categorias[nombre]" placeholder="Introduce un nombre" id="nombre" value="<?php echo s($_POST['categorias']['nombre'] ?? ''); ?>" required>
                             <div class="boton-derecha">
                                 <input type="submit" value="Crear" class="boton-azul guardar">
                             </div>
@@ -144,8 +144,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <td class="categoria-nombre"><?php echo $categoria->nombre?></a></td>
                                     <td class="opciones">
                                         <form method="POST" id="<?php echo "form" . $categoria->id?>">
-                                            <input type="hidden" name="id" value="<?php echo $categoria->id ?>" class="boton-rojo guardar">
-                                            <input type="hidden" name="borrarCat" value="EliminarCat" class="boton-rojo guardar">
+                                            <input type="hidden" name="id" value="<?php echo s($categoria->id) ?>" class="boton-rojo guardar">
+                                            <input type="hidden" name="borrarCat" value="<?php echo s('EliminarCat') ?>" class="boton-rojo guardar">
                                             <button type="submit" class="boton-rojo"><img class="icono" src="/build/img/iconos/icons8-papelera-llena-100.png" alt="Icono papelera"></button>
                                         </form>
                                         <button id="<?php echo $categoria->id?>" class="boton-verde abrirEditarCat<?php echo $categoria->id?>"><img class="icono" src="/build/img/iconos/icons8-punta-de-lápiz-100.png" alt="Icono editar"></button>
@@ -169,8 +169,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <label for="nombre">Nombre Categoria:</label>
                             <input type="text" name="categoria[nombre]" placeholder="Introduce un nombre" id="nombre" value="<?php echo s($categoria->nombre) ?>" required>
                             <div class="boton-derecha">
-                                <input type="hidden" name="id" value="<?php echo $categoria->id ?>">
-                                <input type="hidden" name="guardar" value="actualizarCat">
+                                <input type="hidden" name="id" value="<?php echo s($categoria->id) ?>">
+                                <input type="hidden" name="guardar" value="<?php echo s('actualizarCat') ?>">
                                 <input type="submit" value="guardar" class="boton-azul guardar">
                             </div>
                         </form>
@@ -190,10 +190,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <fieldset class="int-formulario">
 
                                 <label for="codigo">Código:</label>
-                                <input type="number" name="articulos[codigo]" placeholder="Código" id="codigo" value="" required>
+                                <input type="number" name="articulos[codigo]" placeholder="Código" id="codigo" value="<?php echo s($_POST['articulos']['codigo'] ?? ''); ?>" required>
 
                                 <label for="nombre">Nombre Artículo:</label>
-                                <input type="text" name="articulos[nombre]" placeholder="Nombre artículo" id="nombre" value="" required>
+                                <input type="text" name="articulos[nombre]" placeholder="Nombre artículo" id="nombre" value="<?php echo s($_POST['articulos']['nombre'] ?? ''); ?>" required>
 
                                 <label for="categoriasId">Categoria:</label>
                                 <select name="articulos[categoriasId]">
@@ -203,23 +203,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <?php } ?>
                                 </select>
                                 <label for="iva">% IVA:</label>
-                                <input type="number" step="0.01" name="articulos[iva]" placeholder="Iva" id="iva" value="21.00" readonly onchange="calcularPrecioVenta(); calcularBase(); calcularBaseCompra(); calcularPrecioCompra();">
+                                <input type="number" step="0.01" name="articulos[iva]" placeholder="Iva" id="iva" value="<?php echo s(number_format(21, 2)) ?>" readonly onchange="calcularPrecioVenta(); calcularBase(); calcularBaseCompra(); calcularPrecioCompra();">
                                 
                                 <label for="pvp">Precio venta:</label>
-                                <input type="number" step="0.01" name="articulos[pvp]" placeholder="Precio venta" id="pvp" value="" required onchange="calcularBase()">
+                                <input type="number" step="0.01" name="articulos[pvp]" placeholder="Precio venta" id="pvp" value="<?php echo s($_POST['articulos']['pvp'] ?? ''); ?>" required onchange="calcularBase()">
 
                                 <label for="baseArtPvp">Base:</label>
-                                <input type="number" step="0.01" name="articulos[base]" placeholder="Base" id="basePvp" value="" required onchange="calcularPrecioVenta()">
+                                <input type="number" step="0.01" name="articulos[base]" placeholder="Base" id="basePvp" value="<?php echo s($_POST['articulos']['base'] ?? ''); ?>" required onchange="calcularPrecioVenta()">
                                 
 
                                 <label for="precioCompra">Precio Compra:</label>
-                                <input type="number" step="0.01" name="articulos[precioCompra]" placeholder="Precio compra" id="precioCompra" value="" required onchange="calcularBaseCompra()">
+                                <input type="number" step="0.01" name="articulos[precioCompra]" placeholder="Precio compra" id="precioCompra" value="<?php echo s($_POST['articulos']['precioCompra'] ?? ''); ?>" required onchange="calcularBaseCompra()">
 
                                 <label for="baseCompra">Base Compra:</label>
-                                <input type="number" step="0.01" name="articulos[baseCompra]" placeholder="Base compra" id="baseCompra" value="" required onchange="calcularPrecioCompra()">
+                                <input type="number" step="0.01" name="articulos[baseCompra]" placeholder="Base compra" id="baseCompra" value="<?php echo s($_POST['articulos']['baseCompra'] ?? ''); ?>" required onchange="calcularPrecioCompra()">
 
                                 <label for="stock">Stock:</label>
-                                <input type="number" name="articulos[stock]" placeholder="Stock" id="stock" value="" required>
+                                <input type="number" name="articulos[stock]" placeholder="Stock" id="stock" value="<?php echo s($_POST['articulos']['stock'] ?? ''); ?>" required>
 
                             </fieldset>
                             <div class="boton-derecha">
@@ -257,7 +257,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div>
                 <form method="POST" >
                     <label for="coddigo">Código o Nombre:</label>
-                    <input type="text" name="codigo" value="">
+                    <input type="text" name="codigo" value="<?php s(isset($_POST['codigo'])) ?>" autocomplete="off">
                     <input type="submit" value="Buscar">
                 </form>
             </div>
@@ -289,8 +289,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <td><?php echo $articulo->stock?></td>
                         <td class="opciones">
                             <form method="POST" id="<?php echo "form" . $articulo->id?>">
-                                <input type="hidden" name="id" value="<?php echo $articulo->id ?>" class="boton-rojo guardar">
-                                <input type="submit" name="borrarArt" value="Eliminar" class="boton-rojo guardar">
+                                <input type="hidden" name="id" value="<?php echo s($articulo->id) ?>" class="boton-rojo guardar">
+                                <input type="submit" name="borrarArt" value="<?php echo s('Eliminar') ?>" class="boton-rojo guardar">
                             </form>
                             <button id="<?php echo $articulo->id?>" class="boton-verde guardar btnNewArtA<?php echo $articulo->id?>">Actualizar</button>
                         </td>

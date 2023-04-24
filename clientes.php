@@ -3,8 +3,8 @@ require './includes/app.php';
 incluirTemplates('header');
 
 
-use App\clientes;
-$clientes = new clientes;
+use App\Clientes;
+$clientes = new Clientes;
 $clientes = $clientes->all();
 
 
@@ -16,13 +16,13 @@ $r = filter_var($r, FILTER_VALIDATE_INT);
 
 if(isset($_POST['cliente'])) {
     $args = $_POST['cliente'];
-    $guardar = new clientes;
+    $guardar = new Clientes;
     $guardar->sincronizar($args);
     $dir = "/clientes.php";
     $guardar->guardar($dir);
 }
 if(isset($_POST['eliminar'])) {
-    $eliminar = new clientes;
+    $eliminar = new Clientes;
     $eliminar->id = $_POST['eliminar'];
     $dir = "/clientes.php";
     $eliminar = $eliminar->eliminar($dir);
@@ -135,31 +135,31 @@ if(isset($_POST['eliminar'])) {
                     <fieldset class="int-formulario2">
                         <div class="datos">
                             <label for="nif">NIF/CIF:</label>
-                            <input type="text" name="cliente[nif]" placeholder="Introduce un NIF/CIF" id="nif" maxlength="20" value="" required>
+                            <input type="text" name="cliente[nif]" placeholder="Introduce un NIF/CIF" id="nif" maxlength="20" value="<?php echo s($_POST['cliente']['nif'] ?? ''); ?>" required>
 
                             <label for="nombreEmpresa">Nombre Empresa:</label>
-                            <input type="text" name="cliente[nombreEmpresa]" placeholder="Nombre Empresa" id="nombreEmpresa" maxlength="50" value="">
+                            <input type="text" name="cliente[nombreEmpresa]" placeholder="Nombre Empresa" id="nombreEmpresa" maxlength="50" value="<?php echo s($_POST['cliente']['nombreEmpresa'] ?? ''); ?>">
 
                             <label for="nombre">Nombre:</label>
-                            <input type="text" name="cliente[nombre]" placeholder="Nombre" id="nombre" maxlength="20" value="" required>
+                            <input type="text" name="cliente[nombre]" placeholder="Nombre" id="nombre" maxlength="20" value="<?php echo s($_POST['cliente']['nombre'] ?? ''); ?>" required>
 
                             <label for="apellidos">Apellidos:</label>
-                            <input type="text" name="cliente[apellidos]" placeholder="Apellidos" id="apellidos" maxlength="50" value="">
+                            <input type="text" name="cliente[apellidos]" placeholder="Apellidos" id="apellidos" maxlength="50" value="<?php echo s($_POST['cliente']['apellidos'] ?? ''); ?>">
 
                             <label for="direccion">Dirección:</label>
-                            <input type="text" name="cliente[direccion]" placeholder="Dirección" id="direccion" maxlength="100" value="">
+                            <input type="text" name="cliente[direccion]" placeholder="Dirección" id="direccion" maxlength="100" value="<?php echo s($_POST['cliente']['direccion'] ?? ''); ?>">
 
                             <label for="poblacion">Poblacion, Provincia:</label>
-                            <input type="text" name="cliente[poblacionProvincia]" placeholder="poblacion y provincia" id="poblacion" maxlength="70" value="">
+                            <input type="text" name="cliente[poblacionProvincia]" placeholder="poblacion y provincia" id="poblacion" maxlength="70" value="<?php echo s($_POST['cliente']['poblacionProvincia'] ?? ''); ?>">
 
                             <label for="cp">Cp:</label>
-                            <input type="text" name="cliente[cp]" placeholder="Codigo postal" id="cp" maxlength="10" value="">
+                            <input type="text" name="cliente[cp]" placeholder="Codigo postal" id="cp" maxlength="10" value="<?php echo s($_POST['cliente']['cp'] ?? ''); ?>">
 
                             <label for="email">Email:</label>
-                            <input type="email" name="cliente[email]" placeholder="Email" id="email" maxlength="70" value="" >
+                            <input type="email" name="cliente[email]" placeholder="Email" id="email" maxlength="70" value="<?php echo s($_POST['cliente']['email'] ?? ''); ?>" >
                             
                             <label for="telefono">Telefono:</label>
-                            <input type="number" name="cliente[telefono]" placeholder="Telefono" id="telefono" value="" >
+                            <input type="number" name="cliente[telefono]" placeholder="Telefono" id="telefono" value="<?php echo s($_POST['cliente']['telefono'] ?? ''); ?>" >
                         </div>
                     </fieldset>
                     <div class="boton-derecha">

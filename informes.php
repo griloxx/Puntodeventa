@@ -34,9 +34,9 @@ if(isset($_POST['fecha'])) {
         <div>
             <form method="post" class="fechas">
                 <label>Fecha de inicio:</label>
-                <input type="date" name="fecha[inicio]" value="">
+                <input type="date" name="fecha[inicio]" value="<?php echo s($_POST['fecha']['inicio'] ?? ''); ?>">
                 <label>Fecha de fin:</label>
-                <input type="date" name="fecha[fin]" value="">
+                <input type="date" name="fecha[fin]" value="<?php echo s($_POST['fecha']['fin'] ?? ''); ?>">
                 <input type="submit" value="Buscar">
             </form>
         </div>
