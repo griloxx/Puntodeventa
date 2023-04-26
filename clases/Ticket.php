@@ -29,6 +29,51 @@ class Ticket extends ActiveRecord {
         $this->codigo = $args['codigo'] ?? '0';
     }
 
+    public function validar($ext) {
+        if(empty($this->id)) {
+            self::$errores[] = 'El id es obligatorio';    
+        }
+        if(empty($this->precio)) {
+            self::$errores[] = 'El precio es obligatorio';    
+        }
+        if($this->precio > 99999999) {
+            self::$errores[] = 'El precio no puede superar 99999999';    
+        }
+        
+        return self::$errores;
+    }
+    public function validarArticulo() {
+        if(empty($this->codigo)) {
+            self::$errores[] = 'El codigo es obligatorio';    
+        }
+        if($this->codigo > 99999999) {
+            self::$errores[] = 'El codigo es erróneo';    
+        }
+        if(empty($this->precio)) {
+            self::$errores[] = 'El precio es obligatorio';    
+        }
+        if($this->precio > 99999999) {
+            self::$errores[] = 'El precio es erróneo';    
+        }
+        if(empty($this->id)) {
+            self::$errores[] = 'El id es erróneo';
+        }
+        if(empty($this->base)) {
+            self::$errores[] = 'El campo base es obligatorio';    
+        }
+        if($this->base > 99999999) {
+            self::$errores[] = 'El campo base es erróneo';    
+        }
+        if(empty($this->nombre)) {
+            self::$errores[] = 'El nombre es obligatorio';    
+        }
+        if(strlen($this->nombre) > 20) {
+            self::$errores[] = 'El nombre es erróneo';    
+        }
+        
+        return self::$errores;
+    }
+
      
     public function comprobar() {
         // consultar en la base de datos

@@ -28,9 +28,102 @@ class Articulos extends ActiveRecord {
         $this->pvp = $args['pvp'] ?? '';
         $this->stock = $args['stock'] ?? '';
         $this->categoriasId = $args['categoriasId'] ?? '';
-        $this->categoriasId = $args['precioCompra'] ?? '';
-        $this->categoriasId = $args['baseCompra'] ?? '';
+        $this->precioCompra = $args['precioCompra'] ?? '';
+        $this->baseCompra = $args['baseCompra'] ?? '';
     }
+
+    public function validar($ext) {
+        
+        if(!$this->nombre) {
+            self::$errores[] = 'El nombre es obligatorio';
+        }
+        if(strlen($this->nombre) > 20) {
+            self::$errores[] = 'El nombre no puede contener mas de 20 carateres de largo';
+        }
+        if(!$this->codigo) {
+            self::$errores[] = 'El codigo es obligatorio';
+        }
+        if(strlen($this->codigo) > 9) {
+            self::$errores[] = 'El codigo no puede contener mas de 9 carateres de largo';
+        }
+        if(!$this->base) {
+            self::$errores[] = 'La base es obligatorio';
+        }
+        if(strlen($this->base) > 8) {
+            self::$errores[] = 'La base no puede contener mas de 8 carateres de largo';
+        }
+        if(!$this->iva) {
+            self::$errores[] = 'El iva es obligatorio';
+        }
+        if(strlen($this->iva) > 8) {
+            self::$errores[] = 'El iva no puede contener mas de 8 carateres de largo';
+        }
+        if(!$this->pvp) {
+            self::$errores[] = 'El pvp es obligatorio';
+        }
+        if(strlen($this->pvp) > 8) {
+            self::$errores[] = 'El pvp no puede contener mas de 8 carateres de largo';
+        }
+        if(!$this->stock) {
+            self::$errores[] = 'El stock es obligatorio';
+        }
+        if(strlen($this->stock) > 8) {
+            self::$errores[] = 'El stock no puede contener mas de 8 carateres de largo';
+        }
+        if(!$this->precioCompra) {
+            self::$errores[] = 'El precio de compra es obligatorio';
+        }
+        if(strlen($this->precioCompra) > 8) {
+            self::$errores[] = 'El precio de compra no puede contener mas de 8 carateres de largo';
+        }
+        if(!$this->baseCompra) {
+            self::$errores[] = 'La base de compra es obligatorio';
+        }
+        if(strlen($this->baseCompra) > 8) {
+            self::$errores[] = 'La base de compra no puede contener mas de 8 carateres de largo';
+        }
+        
+        return self::$errores;
+    }
+    public function validarActualizar($id) {
+        $this->id = $id;
+        if(!$this->id) {
+            self::$errores[] = 'El Id es obligatorio';
+        }
+        if(strlen($this->id) > 9) {
+            self::$errores[] = 'El Id no puede contener mas de 9 carateres de largo';
+        }
+        $ext = null;
+        $errores = $this->validar($ext);
+        // Combinar los errores originales y nuevos
+        $errores = array_merge($errores, self::$errores);
+        
+        return $errores;
+    }
+    public function validarEliminar() {
+        if(empty($this->id)) {
+            self::$errores[] = 'El id es obligatorio';    
+        }
+        
+        return self::$errores;
+    }
+    public function validarEliminarArt() {
+        if(empty($this->id)) {
+            self::$errores[] = 'El id es obligatorio';    
+        }
+        
+        return self::$errores;
+    }
+    public static function find($id) {
+        $query = " SELECT * FROM " . static::$tabla . " WHERE id = {$id}";
+        $resultado = self::consultarSQL($query);
+        if(!$resultado) {
+            header('Location: /admin/articulos/articulos.php?r=11');
+        }else {
+            return array_shift($resultado);
+        }
+    }
+
     public function buscar($busqueda) {
         // consultar en la base de datos
         $query = "SELECT * FROM " . static::$tabla . " WHERE nombre like '%{$busqueda}%'";

@@ -7,7 +7,7 @@ $usuarios = new Usuarios;
 
 session_start();
 
-$errores = "";
+$errores = [];
 
 if (isset($_SESSION['login'])) {
     return header('Location: /menu.php');
@@ -17,25 +17,19 @@ if (isset($_SESSION['login'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $args = $_POST['usuarios'];
     $usuarios->sincronizar($args);
-    
-    $usuario = $usuarios->autenticar();
-    if($usuario) {
-        $auth = password_verify($args['password'], $usuario->password);
-        if ($auth) {
-            // El usuario está autenticado
-            session_start();
-    
-            // LLenar el arreglo de la sesion
-            $_SESSION['usuario'] = $usuario->usuario;
-            $_SESSION['imagen'] = $usuario->imagen;
-            $_SESSION['login'] = true;
-    
-            header('Location: /menu.php');
+    $ext = null;
+    $errores = $usuarios->validar($ext);
+    if(empty($errores)) {
+        $usuario = $usuarios->autenticar();
+        if($usuario) {
+            $auth = $usuarios->comprobarPassword($usuario);
+            if (!$auth) {
+                $errores = Usuarios::getErrores();
+            } 
+            
         } else {
-            $errores = "El password es incorrecto";
+            $errores = Usuarios::getErrores();
         }
-    } else {
-        $errores = "El usuario no existe";
     }
     
 }
@@ -59,8 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </header>
     <main class="contenedor contenido-main">
         <h1 class="texto-centrado">Iniciar Sesión</h1>
-        <?php if($errores) { ?>
-        <p class="alerta error"><?php echo $errores ?></p>
+        <?php foreach($errores as $error) { ?>
+        <p class="alerta error"><?php echo $error ?></p>
         <?php } ?>
         <div class="Sesion">
             <form method="POST" class="formulario">

@@ -6,6 +6,7 @@ use App\Empresa;
 use Mike42\Escpos\Printer;
 
 $empresa = new Empresa;
+$errores = [];
 // obtener impresoras en windows
 
 $output = shell_exec('wmic printer get sharename') ?? null;
@@ -32,9 +33,14 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
     // asignar los atributos para sincronizarlos a los actuales segun el id
     $args = $_POST['empresa'];
     $empresa->sincronizar($args);
-    //metodo guardar que crea o actuliza en la base de datos
-    $dir = "/dispositivos.php";
-    $empresa->guardar($dir);
+    $errores = $empresa->validarExtendido();
+    if(empty($errores)) {
+        //metodo guardar que crea o actuliza en la base de datos
+        $dir = "/dispositivos.php";
+        $empresa->guardar($dir);
+    } else {
+        $errores = Empresa::getErrores();
+    }
 }
 
 
@@ -46,6 +52,9 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
         if($mensaje) { ?>
             <p class="alerta insertado"><?php echo s($mensaje); ?></p>
         <?php } ?>
+        <?php foreach($errores as $error) { ?>
+        <p class="alerta error"><?php echo $error ?></p>
+        <?php } ?>
         <div class="Sesion">
             <a href="menu.php" class="boton-volver">Volver</a>
             <form method="POST" class="formulario-ticket">
@@ -53,35 +62,35 @@ if($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="datos">
                         <h2>Cabecera</h2>
                         <label for="logotipo">Logotipo:</label>
-                        <input type="text" name="empresa[nombre]" placeholder="Texto Logo" id="logotipo" value="<?php echo s($empresa->nombre);?>" required>
+                        <input type="text" name="empresa[nombre]" placeholder="Texto Logo" id="logotipo" maxlength="20" value="<?php echo s($empresa->nombre);?>" required>
 
                         <label for="nombre comercial">Nombre Comercial:</label>
-                        <input type="text" name="empresa[nombreComercial]" placeholder="Nombre Conpumercial" id="nombreComercial" value="<?php echo s($empresa->nombreComercial);?>" required>
+                        <input type="text" name="empresa[nombreComercial]" placeholder="Nombre Conpumercial" id="nombreComercial" maxlength="20" value="<?php echo s($empresa->nombreComercial);?>" required>
 
                         <label for="telefono">Telefono:</label>
-                        <input type="text" name="empresa[telefono]" placeholder="Telefono" id="telefono" value="<?php echo s($empresa->telefono);?>" required>
+                        <input type="text" name="empresa[telefono]" placeholder="Telefono" id="telefono" maxlength="20" value="<?php echo s($empresa->telefono);?>" required>
 
                         <label for="email">Email:</label>
-                        <input type="email" name="empresa[email]" placeholder="Email Tienda" id="email" value="<?php echo s($empresa->email);?>" required>
+                        <input type="email" name="empresa[email]" placeholder="Email Tienda" id="email" maxlength="60" value="<?php echo s($empresa->email);?>" required>
 
                         <label for="nif">NIF/CIF:</label>
-                        <input type="text" name="empresa[nif]" placeholder="NIF/CIF" id="nif" value="<?php echo s($empresa->nif);?>" required>
+                        <input type="text" name="empresa[nif]" placeholder="NIF/CIF" id="nif" maxlength="11" value="<?php echo s($empresa->nif);?>" required>
                         
                         <label for="direccion">Dirección:</label>
-                        <input type="text" name="empresa[direccion]" placeholder="Dirección" id="direccion" value="<?php echo s($empresa->direccion);?>" required>
+                        <input type="text" name="empresa[direccion]" placeholder="Dirección" id="direccion" maxlength="100" value="<?php echo s($empresa->direccion);?>" required>
 
                         <label for="cp">CP, Poblacion, Provincia:</label>
-                        <input type="text" name="empresa[cpPoblacion]" placeholder="CP, Poblacion, Provincia" id="cp" value="<?php echo s($empresa->cpPoblacion);?>" required>
+                        <input type="text" name="empresa[cpPoblacion]" placeholder="CP, Poblacion, Provincia" id="cp" maxlength="60" value="<?php echo s($empresa->cpPoblacion);?>" required>
                         
                         <h2>Pie</h2>
                         <label for="linea1">Linea 1:</label>
-                        <input type="linea1" name="empresa[linea1]" placeholder="Linea 1" id="linea1" value="<?php echo s($empresa->linea1);?>" required>
+                        <input type="linea1" name="empresa[linea1]" placeholder="Linea 1" id="linea1" maxlength="40" value="<?php echo s($empresa->linea1);?>" required>
 
                         <label for="linea2">Linea 2:</label>
-                        <input type="linea2" name="empresa[linea2]" placeholder="Linea 2" id="linea2" value="<?php echo s($empresa->linea2);?>" required>
+                        <input type="linea2" name="empresa[linea2]" placeholder="Linea 2" id="linea2" maxlength="40" value="<?php echo s($empresa->linea2);?>" required>
 
                         <label for="linea3">Linea 3:</label>
-                        <input type="linea3" name="empresa[linea3]" placeholder="Linea 3" id="linea3" value="<?php echo s($empresa->linea3);?>" required>
+                        <input type="linea3" name="empresa[linea3]" placeholder="Linea 3" id="linea3" maxlength="40" value="<?php echo s($empresa->linea3);?>" required>
                         <h2>Impresora</h2>
                         <select name="empresa[impresora]">
                             <option selected value="">--Seleccione--</option>

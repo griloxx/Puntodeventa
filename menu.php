@@ -9,8 +9,8 @@ use App\Totales;
 
 $r = $_GET['r'] ?? null;
 $r = filter_var($r, FILTER_VALIDATE_INT);
+$errores = [];
     
-
 $empresa = Empresa::all();
 $caja = new Caja;
 $cierreCaja = new Caja;
@@ -31,18 +31,24 @@ if(isset($_POST['cierre'])) {
         header('Location: /menu.php?r=5');
     } else {
         $cierre = $_POST['cierre'];
-        $cerrarTotales = new Totales;
-        $cerrarTotales = $cerrarTotales->consultarCierre();
-        foreach($cerrarTotales as $cerrarTotal) {
-            $cerrarTotal->estado = 'cerrado';
-            $cerrarTotal = $cerrarTotal->cerrarAbrir();
-        }
         $cerrarCaja = new Caja;
         $cerrarCaja->apertura = $cierre['apertura'];
         $cerrarCaja->entradas = $cierre['entradas'];
         $cerrarCaja->total = $cierre['total'];
-        $cerrarCaja->estado = 'cerrado';
-        $cerrarCaja = $cerrarCaja->actualizar5();
+        $ext = null;
+        $errores = $cerrarCaja->validar($ext);
+        if(!$errores) {
+            $cerrarTotales = new Totales;
+            $cerrarTotales = $cerrarTotales->consultarCierre();
+            foreach($cerrarTotales as $cerrarTotal) {
+                $cerrarTotal->estado = 'cerrado';
+                $cerrarTotal = $cerrarTotal->cerrarAbrir();
+            }
+            $cerrarCaja->estado = 'cerrado';
+            $cerrarCaja = $cerrarCaja->actualizar5();
+        } else {
+            $errores = Caja::getErrores();
+        }
     }
     
     
@@ -69,8 +75,14 @@ if(isset($_POST['apertura'])) {
         $abrirTotal = $abrirTotal->comprobar();
         $abrirTotal->estado = 'abierto';
         $abrirTotal = $abrirTotal->cerrarAbrir();
+        $ext = null;
         $caja->apertura = $_POST['apertura'];
-        $caja = $caja->crearCaja();
+        $errores = $caja->validar($ext);
+        if (empty($errores)) {
+            $caja = $caja->crearCaja();
+        } else {
+            $errores = Caja::getErrores();
+        }
     }
     
 }
@@ -83,8 +95,10 @@ if(isset($_POST['apertura'])) {
         
         if($mensaje) { ?>
             <p class="alerta error"><?php echo s($mensaje); ?></p>
-        
         <?php }  ?>  
+        <?php foreach($errores as $error) { ?>
+        <p class="alerta error"><?php echo $error ?></p>
+        <?php } ?>
     <main class="contenedor seccion">
         <div class="menu">
             <div class="menu-dividido">
@@ -126,7 +140,7 @@ if(isset($_POST['apertura'])) {
                         <form method="POST">
                             <div class="formulario-totales" >
                                 <label>Importe Apertura:</label>
-                                <input class="totales" name="apertura" type="number" step="0.01" min="0" value="<?php echo s(number_format(0, 2)) ?>">
+                                <input class="totales" name="apertura" type="number" step="0.01" min="0"  value="<?php echo s(number_format(0, 2)) ?>">
                             </div>
                                 <div class="">
                                     <button class="abrir-caja" type="submit">Abrir Caja</button>
@@ -145,13 +159,13 @@ if(isset($_POST['apertura'])) {
                         <form method="POST">
                             <div class="formulario-totales" >
                                 <label>Importe Apertura:</label>
-                                <input class="totales" type="text" name="cierre[apertura]"  value="<?php echo s(number_format($cierreCaja->apertura, 2)) ?>" readonly>
+                                <input class="totales" type="text" name="cierre[apertura]"  value="<?php echo s(str_replace(',', '',number_format($cierreCaja->apertura, 2))) ?>" readonly>
 
                                 <label>Total Entradas:</label>
-                                <input class="totales"  type="text" name="cierre[entradas]"  value="<?php echo s(number_format($importeTotal, 2)) ?>" readonly>
+                                <input class="totales"  type="text" name="cierre[entradas]"  value="<?php echo s(str_replace(',', '',number_format($importeTotal, 2))) ?>" readonly>
 
                                 <label>Total Caja:</label>
-                                <input class="totales"  type="text" name="cierre[total]"  value="<?php echo s(number_format($importeTotal + $cierreCaja->apertura, 2)) ?>" readonly>
+                                <input class="totales"  type="text" name="cierre[total]"  value="<?php echo s(str_replace(',', '',number_format($importeTotal + $cierreCaja->apertura, 2))) ?>" readonly>
                             </div>
                                 <div class="">
                                     <button class="abrir-caja" type="submit">Cerrar Caja</button>

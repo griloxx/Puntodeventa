@@ -9,6 +9,9 @@ class ActiveRecord {
     protected static $columnasDB = [];
     protected static $tabla = '';
 
+    // Errores
+    protected static $errores = [];
+
     // Definir la conexion a la DB
     public static function setDB($database) {
         self::$db = $database; // self porque las clases hijas van a llamar a esta misma db
@@ -79,11 +82,16 @@ class ActiveRecord {
     public function autenticar() {
 
         // consultar en la base de datos
-        $query = "SELECT * FROM " . static::$tabla . " WHERE usuario = '" . self::$db->escape_string($this->usuario) . "'";
+        $query = "SELECT * FROM " . static::$tabla . " WHERE usuario = '" . self::$db->escape_string($this->usuario) . "' LIMIT 1";
         
-        $resultado = self::consultarSQL($query);
-
-        return array_shift($resultado);
+        $resultado = self::$db->query($query);
+    
+        if(!$resultado->num_rows) {
+            self::$errores[] = 'El usuario no existe';
+            return;
+        }
+        
+        return $resultado;
     }
 
     public function eliminar($dir) {
@@ -95,7 +103,7 @@ class ActiveRecord {
         if($resultado) {
             $this->borrarImagen();
             header("Location: " . $dir . "?r=3");
-        }
+        } 
 
     }
 
@@ -132,11 +140,23 @@ class ActiveRecord {
     }
     public function borrarImagen() {
         // Eliminar el archivo
-        $existeArchivo = file_exists(CARPETA_IMAGENES . $this->imagen);
+        $existeArchivo = CARPETA_IMAGENES . $this->imagen;
         
-        if($existeArchivo){
-            unlink(CARPETA_IMAGENES . $this->imagen);
+        if(is_file($existeArchivo)){
+            unlink($existeArchivo);
         }
+    }
+
+    // Validacion
+    public static function getErrores() {
+
+        return static::$errores;
+    }
+
+    public function validar ($ext) {
+
+        static::$errores = [];
+        return static::$errores;
     }
 
     public static function all() {

@@ -3,8 +3,11 @@
 require '../../includes/app.php';
 incluirTemplates('header');
 
+use App\Empresa;
 use App\Usuarios;
 $usuarios = new Usuarios;
+$errores = [];
+
 
 //validar por url que sea un id valido
 $id = $_GET['id'] ?? null;
@@ -22,14 +25,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // asignar los atributos para sincronizarlos a los actuales segun el id
     $args = $_POST['usuarios'];
-    // si el campo del formulario esta vacio coge la misma para que no la vuelva a hashear
-    if(!$args['password']) {
-        $args['password'] = $usuarios->password;
-    } else if($args['password'] != $usuarios->password) { // si hay contraseña nueva entonces la hashea para enviarla sincronizada ya hasheada
-        $args['password'] = password_hash($args['password'], PASSWORD_DEFAULT);
-    }
     
-    $usuarios->sincronizar($args);
+    // no mando llamar sincronizar para que no coga la misma contraseña ya hasheada
+    $usuarios->email = $args['email'];
+    $usuarios->usuario = $args['usuario'];
+    $usuarios->nombre = $args['nombre'];
+    $usuarios->apellidos = $args['apellidos'];
+    if(!empty($args['password'])) {
+        $usuarios->password = $args['password'];
+        $comprobar = $usuarios->validarContraseña(); // para que no me la compruebe si esta vacio ya que esta hasheada y es mas de 15 caracteres
+    }
     
     //nombre imagen
     $imagen = $_FILES['usuarios']['name']['imagen'];
@@ -39,20 +44,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if($imagen) {
         // generar un nombre unico para cada imagen y que no se reemplace
         $nombreImagen = 'perfil' . $id . '.' . $ext;
+        // setear la imagen
+        $usuarios->setImagen($nombreImagen);
     }
-    // setear la imagen
-    $usuarios->setImagen($nombreImagen);
-    // is_dir comprueba si existe o no la carpeta
-    if(!is_dir(CARPETA_IMAGENES)) {
-        mkdir(CARPETA_IMAGENES);
+    if(!empty($args['password'])) {
+        $validar = $usuarios->validarExtendido($ext);
+        $errores = array_merge($comprobar, $validar);
+    } else {
+        $errores = $validar;
     }
-    // guarda la imagen en el servidor
-    $rutaImagen = CARPETA_IMAGENES . $nombreImagen;
-    // Mueve el archivo de la carpeta temporal a la ruta definida
-    move_uploaded_file($imagenTemporal, $rutaImagen);
-    //metodo guardar que crea o actuliza en la base de datos
-    $dir = "/admin/usuarios.php";
-    $usuarios->guardar($dir);
+    if(empty($errores)) {
+        if(!empty($args['password'])) {
+            $usuarios->password = password_hash($args['password'], PASSWORD_DEFAULT);
+        }
+        // is_dir comprueba si existe o no la carpeta
+        if(!is_dir(CARPETA_IMAGENES)) {
+            mkdir(CARPETA_IMAGENES);
+        }
+        // guarda la imagen en el servidor
+        $rutaImagen = CARPETA_IMAGENES . $nombreImagen;
+        // Mueve el archivo de la carpeta temporal a la ruta definida
+        move_uploaded_file($imagenTemporal, $rutaImagen);
+        //metodo guardar que crea o actuliza en la base de datos
+        $_SESSION['imagen'] = $nombreImagen;
+        $dir = "/admin/usuarios.php";
+        $usuarios->guardar($dir);
+    } else {
+        $errores = Empresa::getErrores();
+    }
 }
 
 ?>
@@ -62,6 +81,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mensaje = mostrarNotificaciones(intval($r));
         if($mensaje) { ?>
             <p class="alerta insertado"><?php echo s($mensaje); ?></p>
+        <?php } ?>
+        <?php foreach($errores as $error) { ?>
+        <p class="alerta error"><?php echo $error ?></p>
         <?php } ?>
         <div class="Sesion">
             <a href="../usuarios.php" class="boton-volver">Volver</a>

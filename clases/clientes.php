@@ -31,6 +31,65 @@ class Clientes extends ActiveRecord {
         $this->poblacionProvincia = $args['poblacionProvincia'] ?? '';
         $this->cp = $args['cp'] ?? '';
     }
+    public function validar($ext) {
+        
+        if(!$this->nombre) {
+            self::$errores[] = 'El nombre es obligatorio';
+        }
+        if(strlen($this->nombre) > 20) {
+            self::$errores[] = 'El nombre no puede contener mas de 20 carateres de largo';
+        }
+        if(!$this->nif) {
+            self::$errores[] = 'El NIF es obligatorio';
+        }
+        if(strlen($this->nif) > 12) {
+            self::$errores[] = 'El NIF no puede contener mas de 12 carateres de largo';
+        }
+        if(!$this->nombreEmpresa) {
+            self::$errores[] = 'El nombre de la empresa es obligatorio';
+        }
+        if(strlen($this->nombreEmpresa) > 50) {
+            self::$errores[] = 'El nombre de la empresa no puede contener mas de 50 carateres de largo';
+        }
+        if(!$this->apellidos) {
+            self::$errores[] = 'El campo apellidos es obligatorio';
+        }
+        if(strlen($this->apellidos) > 50) {
+            self::$errores[] = 'El campo apellidos no puede contener mas de 50 carateres de largo';
+        }
+        if(!$this->direccion) {
+            self::$errores[] = 'El campo direccion es obligatorio';
+        }
+        if(strlen($this->direccion) > 100) {
+            self::$errores[] = 'El campo direccion no puede contener mas de 100 carateres de largo';
+        }
+        if(!$this->poblacionProvincia) {
+            self::$errores[] = 'El campo poblacion provincia es obligatorio';
+        }
+        if(strlen($this->poblacionProvincia) > 70) {
+            self::$errores[] = 'El campo poblacion provincia no puede contener mas de 70 carateres de largo';
+        }
+        if(!$this->cp) {
+            self::$errores[] = 'El CP es obligatorio';
+        }
+        if(strlen($this->cp) > 10) {
+            self::$errores[] = 'El CP no puede contener mas de 10 carateres de largo';
+        }
+        if(!$this->email) {
+            self::$errores[] = 'El email es obligatorio';
+        }
+        if(strlen($this->email) > 70) {
+            self::$errores[] = 'El email no puede contener mas de 70 carateres de largo';
+        }
+        if(!$this->telefono) {
+            self::$errores[] = 'El telefono es obligatorio';
+        }
+        if(strlen($this->telefono) > 9) {
+            self::$errores[] = 'El telefono no puede contener mas de 9 carateres de largo';
+        }
+        
+        return self::$errores;
+    }
 
     public function guardar($dir) {
 

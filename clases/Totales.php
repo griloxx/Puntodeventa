@@ -34,7 +34,16 @@ class Totales extends ActiveRecord {
         $this->fecha = $args['fecha'] ?? date('Y-m-d');
         $this->cliente = $args['cliente'] ?? '1';
     }
-
+    public function validar($ext) {
+        if(empty($this->cliente)) {
+            self::$errores[] = 'El id es obligatorio';    
+        }
+        if($this->cliente > 99999999) {
+            self::$errores[] = 'El id es incorrecto';    
+        }
+        
+        return self::$errores;
+    }
      
     public function comprobar() {
         // consultar en la base de datos

@@ -6,6 +6,7 @@ incluirTemplates('header');
 use App\Usuarios;
 
 $usuarios = new Usuarios;
+$errores = [];
 
 $usuarios = Usuarios::all();
 $r = $_GET['r'] ?? null;
@@ -18,12 +19,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = filter_var($id, FILTER_VALIDATE_INT);
 
     if ($id) {
+        if($id === 1) {
+            header('Location: /menu.php');
+            exit;
+        }
         // compara lo que vamos a eliminar
         $usuario = Usuarios::find($id);
-        // Llamo al metodo eliminar
-        $dir = "/admin/usuarios.php";
-        $usuario->eliminar($dir);
-
+        $errores = Usuarios::getErrores();
+        if(!$errores) {
+            // Llamo al metodo eliminar
+            $dir = "/admin/usuarios.php";
+            $usuario->eliminar($dir);
+        }
     }
 }
 
@@ -34,6 +41,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mensaje = mostrarNotificaciones(intval($r));
         if($mensaje) { ?>
             <p class="alerta insertado"><?php echo s($mensaje); ?></p>
+        <?php } ?>
+        <?php foreach($errores as $error) { ?>
+        <p class="alerta error"><?php echo $error ?></p>
         <?php } ?>
     <div class="separar-botones">
         <a href="/menu.php" class="boton-volver">Volver</a>
@@ -50,7 +60,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </tr>
         </thead>
         <tbody>
-            <?php foreach($usuarios as $usuario) { ?>
+            <?php foreach($usuarios as $usuario) { 
+            if($usuario->id !== '1') {    
+            ?>
             <tr>
                 <td class="td-imagen"><img class="imagen-tabla" src="/imagenes/<?php echo s($usuario->imagen)?>" alt="Imagen Perfil"></td>
                 <td><?php echo $usuario->usuario?></td>
@@ -65,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <a href="usuarios/actualizar.php?id=<?php echo $usuario->id ?>" class="boton-verde guardar">Actualizar</a>
                 </td>
             </tr>
-            <?php } ?>
+            <?php } }?>
         </tbody>
     </table>
 </main>

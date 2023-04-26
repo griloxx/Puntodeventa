@@ -5,6 +5,7 @@ incluirTemplates('header');
 
 use App\Clientes;
 $clientes = new Clientes;
+$errores = [];
 $clientes = $clientes->all();
 
 
@@ -18,8 +19,13 @@ if(isset($_POST['cliente'])) {
     $args = $_POST['cliente'];
     $guardar = new Clientes;
     $guardar->sincronizar($args);
-    $dir = "/clientes.php";
-    $guardar->guardar($dir);
+    $errores = $guardar->validar($ext = null);
+    if(!$errores) {
+        $dir = "/clientes.php";
+        $guardar->guardar($dir);
+    } else {
+        $errores = Clientes::getErrores();
+    }
 }
 if(isset($_POST['eliminar'])) {
     $eliminar = new Clientes;
@@ -42,7 +48,7 @@ if(isset($_POST['eliminar'])) {
                             <fieldset class="int-formulario2">
                                 <div class="datos">
                                     <label for="nif">NIF/CIF:</label>
-                                    <input type="text" name="cliente[nif]" placeholder="Introduce un NIF/CIF" id="nif" maxlength="20" value="<?php echo s($cliente->nif); ?>" required>
+                                    <input type="text" name="cliente[nif]" placeholder="Introduce un NIF/CIF" id="nif" maxlength="12" value="<?php echo s($cliente->nif); ?>" required>
 
                                     <label for="nombreEmpresa">Nombre Empresa:</label>
                                     <input type="text" name="cliente[nombreEmpresa]" placeholder="Nombre Empresa" id="nombreEmpresa" maxlength="50" value="<?php echo s($cliente->nombreEmpresa); ?>">
@@ -66,7 +72,7 @@ if(isset($_POST['eliminar'])) {
                                     <input type="email" name="cliente[email]" placeholder="Email" id="email" maxlength="70" value="<?php echo s($cliente->email); ?>" >
                                     
                                     <label for="telefono">Telefono:</label>
-                                    <input type="number" name="cliente[telefono]" placeholder="Telefono" id="telefono" value="<?php echo s($cliente->telefono); ?>" >
+                                    <input type="text" name="cliente[telefono]" placeholder="Telefono" id="telefono" maxlength="50" value="<?php echo s($cliente->telefono); ?>" >
                                 </div>
                             </fieldset>
                             <div class="boton-derecha">
@@ -86,6 +92,9 @@ if(isset($_POST['eliminar'])) {
             <p class="alerta error"><?php echo s($mensaje); ?></p>
         <?php } else if ($mensaje) { ?>
             <p class="alerta insertado"><?php echo s($mensaje); ?></p>
+            <?php } ?>
+            <?php foreach($errores as $error) { ?>
+            <p class="alerta error"><?php echo $error ?></p>
             <?php } ?>
             <h1 class="texto-centrado">Clientes</h1>
             <div class="separar-botones">

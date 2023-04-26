@@ -8,8 +8,11 @@ use App\Articulos;
 
 $categorias = new Categorias;
 $articulos = new Articulos;
+$ext = null;
+$errores = [];
 
 $articulos = Articulos::all();
+
 
 $categorias = Categorias::all();
 $categoriasPost = new Categorias;
@@ -43,30 +46,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if(isset($_POST['borrarArt'])){
         $id = $_POST['id'];
         $id = filter_var($id, FILTER_VALIDATE_INT);
-        if ($id) {
-            // compara lo que vamos a eliminar
-            $articulos = Articulos::find($id);
-            // Llamo al metodo eliminar
-            $dir = "/admin/articulos/articulos.php";
-            $articulos->eliminar($dir);
-        }
+        
+            if ($id) {
+                // compara lo que vamos a eliminar
+                $articulos = Articulos::find($id);
+                if($articulos) {
+                    // Llamo al metodo eliminar
+                    $dir = "/admin/articulos/articulos.php";
+                    $articulos->eliminar($dir);
+                }
+            }
+            if(!$id) {
+                $errorArt = new Articulos();
+                $eliminar = $errorArt->validarEliminar();
+                $errores = Articulos::getErrores();
+                $articulos = [];
+            }
     }
+
     if (isset($_POST['borrarCat'])) {
         $id = $_POST['id'];
         $id = filter_var($id, FILTER_VALIDATE_INT);
         if ($id) {
             // compara lo que vamos a eliminar
             $categorias = Categorias::find($id);
-            // Llamo al metodo eliminar
-            $dir = "/admin/articulos/articulos.php";
-            $categorias->eliminar($dir);
+            
+            if($categorias) {
+
+                $eliminar = $categorias->validarEliminar();
+                // Llamo al metodo eliminar
+                $dir = "/admin/articulos/articulos.php";
+                $categorias->eliminar($dir);
+            } 
+            
+        }
+        if(!$id) {
+            $errorCat = new Categorias();
+            $eliminar = $errorCat->validarEliminar();
+            $errores = Categorias::getErrores();
+            $articulos = [];
         }
     }
     if (isset($_POST['categorias'])) {
         $args = $_POST['categorias'];
         $categoriasPost->sincronizar($args);
-        $dir = "/admin/articulos/articulos.php";
-        $categoriasPost->guardar($dir);
+        $errores = $categoriasPost->validar($ext);
+        if(empty($errores)) {
+            $dir = "/admin/articulos/articulos.php";
+            $categoriasPost->guardar($dir);
+        } else {
+            $errores = Categorias::getErrores();
+            $articulos = [];
+        }
     }
     if (isset($_POST['guardar'])) {
         $id = $_POST['id'];
@@ -75,26 +106,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $args = $_POST['categoria'];
             $categoriasPost = Categorias::find($id);
             $categoriasPost->sincronizar($args);
-            $dir = "/admin/articulos/articulos.php";
-            $categoriasPost->guardar($dir);
+            $errores = $categoriasPost->validar($ext);
+            if(empty($errores)) {
+                $dir = "/admin/articulos/articulos.php";
+                $categoriasPost->guardar($dir);
+            } else {
+                $errores = Categorias::getErrores();
+                $articulos = [];
+            }
         }
     }
     if (isset($_POST['articulos'])) {
         $args = $_POST['articulos'];
         $articulos->sincronizar($args);
         $codigo = $args['codigo'];
-        $duplicado = new Articulos;
-        $dir = "/admin/articulos/articulos.php";
-        $duplicado = $articulos->codigo($codigo, $dir);
-        $articulos->guardar($dir);
+        $errores = $articulos->validar($ext);
+        if(empty($errores)) {
+            $duplicado = new Articulos;
+            $dir = "/admin/articulos/articulos.php";
+            $duplicado = $articulos->codigo($codigo, $dir);
+            $articulos->guardar($dir);
+        } else {
+            $errores = Articulos::getErrores();
+            $articulos = [];
+        }
         
 
     }
     if (isset($_POST['articulo'])) {
         $args = $_POST['articulo'];
         $articulos->sincronizar($args);
-        $dir = "/admin/articulos/articulos.php";
-        $articulos->guardar($dir);
+        $errores = $articulos->validarActualizar();
+        if(empty($errores)) {
+            $dir = "/admin/articulos/articulos.php";
+            $articulos->guardar($dir);
+        } else {
+            $errores = Articulos::getErrores();
+            $articulos = [];
+        }
     }
     if (isset($_POST['codigo'])){
         $codigo = $_POST['codigo'];
@@ -109,11 +158,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <h1 class="texto-centrado">Gestion de articulos</h1>
     <?php
         $mensaje = mostrarNotificaciones(intval($r));
-        if ($r == '8') {
+        if (in_array($r, ['8', '9', '10', '11'])) {
             if($mensaje) { ?>
             <p class="alerta error"><?php echo s($mensaje); ?></p>
             <?php } } else if($mensaje) { ?>
             <p class="alerta insertado"><?php echo s($mensaje); ?></p>
+        <?php } ?>
+        <?php foreach($errores as $error) { ?>
+        <p class="alerta error"><?php echo $error ?></p>
         <?php } ?>
         
         <!-- ventana modal -->
@@ -125,7 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="editor-categorias formulario">
                         <form method="POST" class="int-formulario">
                             <label for="nombre">Nombre Categoria:</label>
-                            <input type="text" name="categorias[nombre]" placeholder="Introduce un nombre" id="nombre" value="<?php echo s($_POST['categorias']['nombre'] ?? ''); ?>" required>
+                            <input type="text" name="categorias[nombre]" placeholder="Introduce un nombre" id="nombre" maxlength="20" value="<?php echo s($_POST['categorias']['nombre'] ?? ''); ?>" required>
                             <div class="boton-derecha">
                                 <input type="submit" value="Crear" class="boton-azul guardar">
                             </div>
@@ -167,7 +219,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="editor-categorias formulario">
                         <form method="POST" class="int-formulario">
                             <label for="nombre">Nombre Categoria:</label>
-                            <input type="text" name="categoria[nombre]" placeholder="Introduce un nombre" id="nombre" value="<?php echo s($categoria->nombre) ?>" required>
+                            <input type="text" name="categoria[nombre]" placeholder="Introduce un nombre" id="nombre" maxlength="20" value="<?php echo s($categoria->nombre) ?>" required>
                             <div class="boton-derecha">
                                 <input type="hidden" name="id" value="<?php echo s($categoria->id) ?>">
                                 <input type="hidden" name="guardar" value="<?php echo s('actualizarCat') ?>">
@@ -190,10 +242,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <fieldset class="int-formulario">
 
                                 <label for="codigo">Código:</label>
-                                <input type="number" name="articulos[codigo]" placeholder="Código" id="codigo" value="<?php echo s($_POST['articulos']['codigo'] ?? ''); ?>" required>
+                                <input type="number" name="articulos[codigo]" placeholder="Código" id="codigo" maxlength="9" value="<?php echo s($_POST['articulos']['codigo'] ?? ''); ?>" required>
 
                                 <label for="nombre">Nombre Artículo:</label>
-                                <input type="text" name="articulos[nombre]" placeholder="Nombre artículo" id="nombre" value="<?php echo s($_POST['articulos']['nombre'] ?? ''); ?>" required>
+                                <input type="text" name="articulos[nombre]" placeholder="Nombre artículo" id="nombre" maxlength="20" value="<?php echo s($_POST['articulos']['nombre'] ?? ''); ?>" required>
 
                                 <label for="categoriasId">Categoria:</label>
                                 <select name="articulos[categoriasId]">
@@ -203,23 +255,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         <?php } ?>
                                 </select>
                                 <label for="iva">% IVA:</label>
-                                <input type="number" step="0.01" name="articulos[iva]" placeholder="Iva" id="iva" value="<?php echo s(number_format(21, 2)) ?>" readonly onchange="calcularPrecioVenta(); calcularBase(); calcularBaseCompra(); calcularPrecioCompra();">
+                                <input type="number" step="0.01" name="articulos[iva]" placeholder="Iva" id="iva" maxlength="8" value="<?php echo s(number_format(21, 2)) ?>" readonly onchange="calcularPrecioVenta(); calcularBase(); calcularBaseCompra(); calcularPrecioCompra();">
                                 
                                 <label for="pvp">Precio venta:</label>
-                                <input type="number" step="0.01" name="articulos[pvp]" placeholder="Precio venta" id="pvp" value="<?php echo s($_POST['articulos']['pvp'] ?? ''); ?>" required onchange="calcularBase()">
+                                <input type="number" step="0.01" name="articulos[pvp]" placeholder="Precio venta" id="pvp" maxlength="8" value="<?php echo s($_POST['articulos']['pvp'] ?? ''); ?>" required onchange="calcularBase()">
 
                                 <label for="baseArtPvp">Base:</label>
-                                <input type="number" step="0.01" name="articulos[base]" placeholder="Base" id="basePvp" value="<?php echo s($_POST['articulos']['base'] ?? ''); ?>" required onchange="calcularPrecioVenta()">
+                                <input type="number" step="0.01" name="articulos[base]" placeholder="Base" id="basePvp"  maxlength="8" value="<?php echo s($_POST['articulos']['base'] ?? ''); ?>" required onchange="calcularPrecioVenta()">
                                 
 
                                 <label for="precioCompra">Precio Compra:</label>
-                                <input type="number" step="0.01" name="articulos[precioCompra]" placeholder="Precio compra" id="precioCompra" value="<?php echo s($_POST['articulos']['precioCompra'] ?? ''); ?>" required onchange="calcularBaseCompra()">
+                                <input type="number" step="0.01" name="articulos[precioCompra]" placeholder="Precio compra" id="precioCompra" maxlength="8" value="<?php echo s($_POST['articulos']['precioCompra'] ?? ''); ?>" required onchange="calcularBaseCompra()">
 
                                 <label for="baseCompra">Base Compra:</label>
-                                <input type="number" step="0.01" name="articulos[baseCompra]" placeholder="Base compra" id="baseCompra" value="<?php echo s($_POST['articulos']['baseCompra'] ?? ''); ?>" required onchange="calcularPrecioCompra()">
+                                <input type="number" step="0.01" name="articulos[baseCompra]" placeholder="Base compra" id="baseCompra" maxlength="8" value="<?php echo s($_POST['articulos']['baseCompra'] ?? ''); ?>" required onchange="calcularPrecioCompra()">
 
                                 <label for="stock">Stock:</label>
-                                <input type="number" name="articulos[stock]" placeholder="Stock" id="stock" value="<?php echo s($_POST['articulos']['stock'] ?? ''); ?>" required>
+                                <input type="number" name="articulos[stock]" placeholder="Stock" id="stock" maxlength="8" value="<?php echo s($_POST['articulos']['stock'] ?? ''); ?>" required>
 
                             </fieldset>
                             <div class="boton-derecha">
@@ -278,7 +330,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach($articulos as $articulo) { ?>
+                    <?php
+                    foreach($articulos as $articulo) { ?>
                     <tr>
                         <td><?php echo $articulo->id?></td>
                         <td><?php echo $articulo->codigo?></td>
@@ -295,7 +348,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <button id="<?php echo $articulo->id?>" class="boton-verde guardar btnNewArtA<?php echo $articulo->id?>">Actualizar</button>
                         </td>
                     </tr>
-                    <?php } ?>
+                    <?php }  ?>
                 </tbody>
             </table>
             <?php foreach($articulos as $articulo) { ?>
@@ -309,14 +362,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <form id="mi-modal" method="POST">
                                 <fieldset class="int-formulario">
 
-                                    <label for="id">Id:</label>
-                                    <input type="text" name="articulo[id]" placeholder="Código" id="id" value="<?php echo s($articulo->id); ?>" required readonly>
+                                    <input type="hidden" name="articulo[id]" placeholder="Código" id="id" maxlength="9" value="<?php echo s($articulo->id); ?>" required readonly>
 
                                     <label for="codigo">Código:</label>
-                                    <input type="number" name="articulo[codigo]" placeholder="Código" id="codigo" value="<?php echo s($articulo->codigo); ?>" required>
+                                    <input type="number" name="articulo[codigo]" placeholder="Código" id="codigo" maxlength="9" value="<?php echo s($articulo->codigo); ?>" required>
 
                                     <label for="nombre">Nombre Artículo:</label>
-                                    <input type="text" name="articulo[nombre]" placeholder="Nombre artículo" id="nombre" value="<?php echo s($articulo->nombre); ?>" required>
+                                    <input type="text" name="articulo[nombre]" placeholder="Nombre artículo" id="nombre" maxlength="20" value="<?php echo s($articulo->nombre); ?>" required>
 
                                     <label for="categoriasId">Categoria:</label>
                                     <select name="articulo[categoriasId]">
@@ -326,23 +378,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             <?php } ?>
                                     </select>
                                     <label for="iva">% IVA:</label>
-                                    <input type="number" step="0.01" name="articulo[iva]" placeholder="Iva" id="iva<?php echo $articulo->id?>" value="21.00" readonly >
+                                    <input type="number" step="0.01" name="articulo[iva]" placeholder="Iva" id="iva<?php echo $articulo->id?>" maxlength="8" value="21.00" readonly >
                                     
                                     <label for="pvp">Precio venta:</label>
-                                    <input type="number" step="0.01" name="articulo[pvp]" placeholder="Precio venta" id="pvp<?php echo $articulo->id?>" value="<?php echo s($articulo->pvp); ?>" required >
+                                    <input type="number" step="0.01" name="articulo[pvp]" placeholder="Precio venta" id="pvp<?php echo $articulo->id?>" maxlength="8" value="<?php echo s($articulo->pvp); ?>" required >
 
                                     <label for="baseArtPvp">Base:</label>
-                                    <input type="number" step="0.01" name="articulo[base]" placeholder="Base" id="basePvp<?php echo $articulo->id?>" value="<?php echo s($articulo->base); ?>" required >
+                                    <input type="number" step="0.01" name="articulo[base]" placeholder="Base" id="basePvp<?php echo $articulo->id?>" maxlength="8" value="<?php echo s($articulo->base); ?>" required >
                                     
 
                                     <label for="precioCompra">Precio Compra:</label>
-                                    <input type="number" step="0.01" name="articulo[precioCompra]" placeholder="Precio compra" id="precioCompra<?php echo $articulo->id?>" value="<?php echo s($articulo->precioCompra); ?>" required >
+                                    <input type="number" step="0.01" name="articulo[precioCompra]" placeholder="Precio compra" id="precioCompra<?php echo $articulo->id?>" maxlength="8" value="<?php echo s($articulo->precioCompra); ?>" required >
 
                                     <label for="baseCompra">Base Compra:</label>
-                                    <input type="number" step="0.01" name="articulo[baseCompra]" placeholder="Base compra" id="baseCompra<?php echo $articulo->id?>" value="<?php echo s($articulo->baseCompra); ?>" required >
+                                    <input type="number" step="0.01" name="articulo[baseCompra]" placeholder="Base compra" id="baseCompra<?php echo $articulo->id?>" maxlength="8" value="<?php echo s($articulo->baseCompra); ?>" required >
 
                                     <label for="stock">Stock:</label>
-                                    <input type="number" name="articulo[stock]" placeholder="Stock" id="stock" value="<?php echo s($articulo->stock); ?>" required>
+                                    <input type="number" name="articulo[stock]" placeholder="Stock" id="stock" maxlength="8" value="<?php echo s($articulo->stock); ?>" required>
 
                                 </fieldset>
                                 <div class="boton-derecha">

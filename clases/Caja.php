@@ -21,6 +21,23 @@ class Caja extends ActiveRecord {
         $this->total = $args['total'] ?? '0';
         $this->estado = $args['estado'] ?? 'abierto';
     }
+    public function validar($ext) {
+
+        if($this->apertura > 1500) {
+            self::$errores[] = 'El importe para abrir la caja no puede superar los 1500€';
+        }
+        if($this->apertura == '') {
+            self::$errores[] = 'Debe introducir un importe válido';
+        }
+        if($this->entradas == '' || $this->entradas  >= 999999999) {
+            self::$errores[] = 'El importe no es correcto';
+        }
+        if($this->total == '' || $this->total >= 999999999) {
+            self::$errores[] = 'El importe no es correcto';
+        }
+        
+        return self::$errores;
+    }
 
     public function crearCaja() {
 

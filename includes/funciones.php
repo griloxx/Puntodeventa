@@ -58,6 +58,18 @@ function mostrarNotificaciones($codigo) {
         case 8:
             $mensaje = 'El código utilizado ya existe';
             break;
+        case 9:
+            $mensaje = 'Esta categoria tiene articulos asociados, eliminelos primero o cambielos de categoria';
+            break;
+        case 10:
+            $mensaje = 'Esta categoria no existe';
+            break;
+        case 11:
+            $mensaje = 'Este articulo no existe';
+            break;
+        case 12:
+            $mensaje = 'Error en los datos';
+            break;
         
         default:
             $mensaje = false;
