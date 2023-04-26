@@ -16,6 +16,9 @@ $r = $_GET['r'] ?? null;
 $id = filter_var($id, FILTER_VALIDATE_INT);
 $r = filter_var($r, FILTER_VALIDATE_INT);
 // traer los datos al formulario para verlos y/o actualizar campos
+if($id === 1 ){
+    header('Location: /menu.php');
+}
 $usuarios = Usuarios::find($id);
 
 
@@ -66,7 +69,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Mueve el archivo de la carpeta temporal a la ruta definida
         move_uploaded_file($imagenTemporal, $rutaImagen);
         //metodo guardar que crea o actuliza en la base de datos
-        $_SESSION['imagen'] = $nombreImagen;
         $dir = "/admin/usuarios.php";
         $usuarios->guardar($dir);
     } else {
